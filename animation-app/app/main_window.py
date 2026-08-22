@@ -36,16 +36,16 @@ class MainWindow(QMainWindow):
         self.api = api
         self.storage = storage
         
-        # Initialize UI
-        self._setup_ui()
-        self._setup_menu()
-        self._setup_connections()
-        
-        # State
+        # Initialize state before UI setup
         self.worker_manager = WorkerManager(api, storage)
         self.timeline_state = TimelineState()
         self.playback_timer: Optional[QTimer] = None
         self.current_asset: Optional[Asset] = None
+        
+        # Initialize UI
+        self._setup_ui()
+        self._setup_menu()
+        self._setup_connections()
         
         # Load assets
         self._load_assets()
@@ -272,16 +272,16 @@ class MainWindow(QMainWindow):
         self.stop_button.clicked.connect(self._handle_stop_clicked)
         
         # Worker connections
-        self.worker_manager.current_worker.generation_started.connect(
+        self.worker_manager.generation_started.connect(
             self._handle_worker_started
         )
-        self.worker_manager.current_worker.generation_progress.connect(
+        self.worker_manager.generation_progress.connect(
             self._handle_worker_progress
         )
-        self.worker_manager.current_worker.generation_complete.connect(
+        self.worker_manager.generation_complete.connect(
             self._handle_worker_complete
         )
-        self.worker_manager.current_worker.generation_failed.connect(
+        self.worker_manager.generation_failed.connect(
             self._handle_worker_failed
         )
     
