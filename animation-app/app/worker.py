@@ -94,6 +94,12 @@ class GenerationWorker(QObject):
 class WorkerManager(QObject):
     """Manages worker threads for image generation."""
     
+    # Signals that forward from the worker
+    generation_started = Signal()
+    generation_progress = Signal(int)
+    generation_complete = Signal(Asset)
+    generation_failed = Signal(str)
+    
     def __init__(self, api: ImageGenerationAPI, storage: AssetStorage):
         """Initialize the worker manager.
         
@@ -134,10 +140,10 @@ class WorkerManager(QObject):
         
         # Connect signals
         # Forward worker signals to manager signals
-        self.current_worker.generation_started.connect(self._handle_generation_started)
-        self.current_worker.generation_progress.connect(self._handle_generation_progress)
-        self.current_worker.generation_complete.connect(self._handle_generation_complete)
-        self.current_worker.generation_failed.connect(self._handle_generation_failed)
+        self.current_worker.generation_started.connect(self.generation_started)
+        self.current_worker.generation_progress.connect(self.generation_progress)
+        self.current_worker.generation_complete.connect(self.generation_complete)
+        self.current_worker.generation_failed.connect(self.generation_failed)
         
         # Connect thread started to worker run
         self.worker_thread.started.connect(self.current_worker.run)
@@ -163,16 +169,3 @@ class WorkerManager(QObject):
     def cleanup(self) -> None:
         """Clean up all worker resources."""
         self.cancel_generation()
-    
-    # Signal handlers (to be connected to by the main window)
-    def _handle_generation_started(self) -> None:
-        pass  # Will be overridden or connected to in main window
-    
-    def _handle_generation_progress(self, percent: int) -> None:
-        pass
-    
-    def _handle_generation_complete(self, asset: Asset) -> None:
-        pass
-    
-    def _handle_generation_failed(self, error: str) -> None:
-        pass
